@@ -1,0 +1,11 @@
+<div>
+    <input type="text" [(ngModel)]="username" placeholder="Name" /> <br/>
+    <textarea [(ngModel)]="message" placeholder="Message..." ></textarea> <br/>
+    <button type="button" (click)="sendMessage()">Send</button>
+</div>
+<div>-----------------------------------------------------------------</div>
+<div>
+    @for (msg of messages; track msg) {
+        <p>From {{ msg.name }} : {{ msg.message }}</p>
+    }
+</div>
