@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class RandomStringServiceService {
+export class RandomStringService {
 
     private hubConnection: signalR.HubConnection;
     private str = new Subject<string>();
@@ -23,19 +23,19 @@ export class RandomStringServiceService {
 
         this.hubConnection.on("newStringReceived", (str: string) => {
             console.log(str);
-            this.OnStringReceived(str)
+            this.onStringReceived(str)
         });
     }
 
-    CloseConnection(): void {
+    closeConnection(): void {
         this.hubConnection.stop();
     }
 
-    OnStringReceived(str: string) {
+    onStringReceived(str: string) {
         this.str.next(str);
     }
 
-    GetString(): Subject<string> {
+    getString(): Subject<string> {
         return this.str;
     }
 }

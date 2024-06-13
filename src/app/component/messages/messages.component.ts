@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MessageServiceService } from '../../services/RT/message-service.service';
+import { MessageService } from '../../services/RT/message.service';
 import { Observable } from 'rxjs';
 import { IMessage } from '../../interfaces/imessage';
 import { FormsModule } from '@angular/forms';
@@ -20,11 +20,11 @@ export class MessagesComponent implements OnInit, OnDestroy {
     messages: IMessage[] = [];
 
     
-    constructor(private messageService: MessageServiceService) {
+    constructor(private messageService: MessageService) {
     }
 
     ngOnInit(): void {
-        this.messageService.GetMessages().subscribe(x => {
+        this.messageService.getMessages().subscribe(x => {
             this.messages.push(x);
             
             if(this.messages.length > 10) {
@@ -34,7 +34,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
         });
     }
     ngOnDestroy(): void {
-        this.messageService.CloseConnection();
+        this.messageService.closeConnection();
     }
 
     sendMessage() {
@@ -46,7 +46,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
                 message: this.message
             };
 
-            this.messageService.SendMessage(message);
+            this.messageService.sendMessage(message);
         }
     }
 }

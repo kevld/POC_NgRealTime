@@ -7,7 +7,7 @@ import { environment } from '../../../environments/environment.development';
 @Injectable({
     providedIn: 'root'
 })
-export class MessageServiceService {
+export class MessageService {
 
     private hubConnection: signalR.HubConnection;
     private messages = new Subject<IMessage>();
@@ -28,7 +28,7 @@ export class MessageServiceService {
         });
     }
 
-    CloseConnection(): void {
+    closeConnection(): void {
         this.hubConnection.stop();
     }
 
@@ -36,12 +36,11 @@ export class MessageServiceService {
         this.messages.next(message);
     }
 
-    SendMessage(message: IMessage): void {
+    sendMessage(message: IMessage): void {
         this.hubConnection.invoke("newMessage", message);
     }
 
-    GetMessages(): Subject<IMessage> {
+    getMessages(): Subject<IMessage> {
         return this.messages;
     }
-
 }
