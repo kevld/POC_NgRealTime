@@ -1,33 +1,31 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { RandomStringServiceService } from '../../services/RT/random-string-service.service';
-import { HttpClient } from '@angular/common/http';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { Store } from '@ngxs/store';
+import { StartRandomStringConnectionAction, StopRandomStringConnectionAction } from '../../actions/real-time-actions.action';
+import { RealTimeState } from '../../states/real-time-state.state';
+import { Observable } from 'rxjs';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
     selector: 'app-random-string',
     standalone: true,
-    imports: [],
+    imports: [AsyncPipe],
     templateUrl: './random-string.component.html',
     styleUrl: './random-string.component.scss'
 })
 export class RandomStringComponent implements OnInit, OnDestroy {
 
-    str: string = "";
+    private store: Store = inject(Store);
 
-    constructor(private rdmStrService: RandomStringServiceService, private http: HttpClient) { }
+    
+    str$: Observable<string> = this.store.select(RealTimeState.latestString);
 
     ngOnInit(): void {
-        this.startListening();
-        this.rdmStrService.GetString().subscribe((x: string) => this.str = x);
+        this.store.dispatch(new StartRandomStringConnectionAction());
 
     }
     ngOnDestroy(): void {
-        this.rdmStrService.CloseConnection();
+        this.store.dispatch(new StopRandomStringConnectionAction());
     }
 
-    private startListening() {
-        this.http.get<string>('http://localhost:5230/api/Test')
-            .subscribe((x: string) => {
-                console.log(x);
-            });
-    }
+    
 }

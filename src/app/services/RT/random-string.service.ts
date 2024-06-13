@@ -2,16 +2,17 @@ import { Injectable } from '@angular/core';
 import * as signalR from "@microsoft/signalr";
 import { environment } from '../../../environments/environment.development';
 import { Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
-export class RandomStringServiceService {
+export class RandomStringService {
 
     private hubConnection: signalR.HubConnection;
     private str = new Subject<string>();
 
-    constructor() {
+    constructor(private http: HttpClient) {
         this.hubConnection = new signalR.HubConnectionBuilder()
             .withUrl(environment.backendUrl + environment.randomStringHub)
             .build();
@@ -23,19 +24,26 @@ export class RandomStringServiceService {
 
         this.hubConnection.on("newStringReceived", (str: string) => {
             console.log(str);
-            this.OnStringReceived(str)
+            this.onStringReceived(str)
         });
     }
 
-    CloseConnection(): void {
+    stopConnection(): void {
         this.hubConnection.stop();
     }
 
-    OnStringReceived(str: string) {
+    onStringReceived(str: string) {
         this.str.next(str);
     }
 
-    GetString(): Subject<string> {
+    getString(): Subject<string> {
         return this.str;
+    }
+
+    startListening(): void {
+        this.http.get<string>(environment.backendUrl + environment.randomStringListeningUrl)
+            .subscribe((x: string) => {
+                console.log(x);
+            });
     }
 }

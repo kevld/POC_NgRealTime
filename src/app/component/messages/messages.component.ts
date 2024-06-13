@@ -1,44 +1,37 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MessageServiceService } from '../../services/RT/message-service.service';
-import { Observable } from 'rxjs';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { IMessage } from '../../interfaces/imessage';
 import { FormsModule } from '@angular/forms';
 import { AsyncPipe } from '@angular/common';
+import { Store } from '@ngxs/store';
+import { RealTimeState } from '../../states/real-time-state.state';
+import { Observable } from 'rxjs';
+import { SendMessageAction, StartMessageConnectionAction, StopMessageConnectionAction } from '../../actions/real-time-actions.action';
 
 @Component({
-  selector: 'app-messages',
-  standalone: true,
-  imports: [FormsModule, AsyncPipe],
-  templateUrl: './messages.component.html',
-  styleUrl: './messages.component.scss'
+    selector: 'app-messages',
+    standalone: true,
+    imports: [FormsModule, AsyncPipe],
+    templateUrl: './messages.component.html',
+    styleUrl: './messages.component.scss'
 })
 export class MessagesComponent implements OnInit, OnDestroy {
-    
+
+    private store: Store = inject(Store);
+
     username: string = "";
     message: string = "";
 
-    messages: IMessage[] = [];
-
-    
-    constructor(private messageService: MessageServiceService) {
-    }
+    messages$: Observable<IMessage[]> = this.store.select(RealTimeState.latestMessages);
 
     ngOnInit(): void {
-        this.messageService.GetMessages().subscribe(x => {
-            this.messages.push(x);
-            
-            if(this.messages.length > 10) {
-                // Display last 10 msg
-                this.messages.shift();
-            }
-        });
+        this.store.dispatch(new StartMessageConnectionAction());
     }
     ngOnDestroy(): void {
-        this.messageService.CloseConnection();
+        this.store.dispatch(new StopMessageConnectionAction());
     }
 
     sendMessage() {
-        if(!this.username.length || !this.message.length) {
+        if (!this.username.length || !this.message.length) {
             alert('Fill fields before sending message.')
         } else {
             const message: IMessage = {
@@ -46,7 +39,7 @@ export class MessagesComponent implements OnInit, OnDestroy {
                 message: this.message
             };
 
-            this.messageService.SendMessage(message);
+            this.store.dispatch(new SendMessageAction(message));
         }
     }
 }

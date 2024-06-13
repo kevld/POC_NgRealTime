@@ -5,7 +5,7 @@
 </div>
 <div>-----------------------------------------------------------------</div>
 <div>
-    @for (msg of messages; track msg) {
+    @for (msg of messages$ | async; track msg) {
         <p>From {{ msg.name }} : {{ msg.message }}</p>
     }
 </div>
